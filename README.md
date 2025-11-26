@@ -1,84 +1,267 @@
-# Claude Code プロジェクト設定
+# 私募REIT情報サイト - 外部仕様書
 
-## プロジェクト構成
+## 1. サービス概要
 
-このプロジェクトは以下のサブプロジェクトで構成されています：
+**私募REIT（不動産投資信託）の情報を提供する会員制Webサイト**
 
-- `private-reit/` : 私募REIT情報サイト本体（Ruby on Rails 4.1.4）
-- `private-reit-form/` : 会員登録フォーム
-- その他補助ディレクトリ
+適格機関投資家向けに、70以上の私募REITの詳細情報、財務資料、インタビュー記事などを提供している。
 
-## Serena メモリ命名規則
+---
 
-### ファイル名プレフィックス
+## 2. 利用者
 
-メモリファイルは以下の命名規則に従います：
+### 2.1 一般会員（顧客）
 
-- **`app-*`** : private-reit本体（`/home/kaitotam/private-reit/private-reit/`）に関する情報
-  - 例: `app-directory-structure.md`, `app-database-schema.md`
+**対象者**: 適格機関投資家
+- 機関投資家
+- 金融機関
+- 資産運用会社
+- 事業会社
+- その他
 
-- **`form-*`** : private-reit-form（`/home/kaitotam/private-reit/private-reit-form/`）に関する情報
-  - 例: `form-registration-flow.md`, `form-validation-rules.md`
+**できること**:
+- 私募REITの詳細情報を見る
+- 財務資料（PDF）をダウンロードする
+- インタビュー記事を読む
+- 投資主一覧・関係法人一覧を見る
 
-- **プレフィックスなし** : プロジェクト全体、または複数サブプロジェクトに共通する情報
-  - 例: `project_overview.md`, `suggested_commands.md`, `code_style_and_conventions.md`
+### 2.2 管理者（社内）
 
-### メモリ作成時のルール
+**対象者**: Japan REIT株式会社のスタッフ
 
-1. **新規メモリを作成する際は、上記プレフィックスを必ず使用する**
-   - 対象が明確な場合は `app-` または `form-` を付ける
-   - プロジェクト全体に関わる場合はプレフィックスなし
+**できること**:
+- 会員登録の承認・却下
+- 会員情報の編集・削除
+- 一斉メールの送信
+- アクセスログの閲覧
 
-2. **各メモリの冒頭に対象範囲を明記する**
-   ```markdown
-   > **対象**: app本体 (`/home/kaitotam/private-reit/private-reit/`)
-   ```
-   または
-   ```markdown
-   > **対象**: form (`/home/kaitotam/private-reit/private-reit-form/`)
-   ```
+---
 
-3. **ファイル名はケバブケース（kebab-case）を使用**
-   - 良い例: `app-controller-routing.md`
-   - 悪い例: `AppControllerRouting.md`, `app_controller_routing.md`
+## 3. 主な機能
 
-4. **ファイル名は内容を的確に表現する**
-   - 具体的で検索しやすい名前を付ける
-   - 例: `app-member-registration-flow.md` (Good)
-   - 例: `app-misc.md` (Bad)
+### 3.1 顧客向け機能
 
-### メモリ読み込み時のルール
+| 機能 | 説明 | URL |
+|------|------|-----|
+| トップページ | サイトのランディングページ | `/` |
+| REIT詳細ページ | 各REITの詳細情報（70以上） | `/home/reit/xxx` |
+| 財務資料ダウンロード | PDFファイルのダウンロード | `/home/:id/financedownload` |
+| インタビュー記事 | 運用会社へのインタビュー（20記事以上） | `/interview/xxx` |
+| 投資主一覧 | 全社横断の投資主リスト | `/home/unitholders` |
+| 関係法人一覧 | 各REITの関係法人 | `/home/accounting` |
+| 更新情報 | サイトの更新履歴 | `/home/updatelist` |
+| FAQ | よくある質問 | `/home/faq` |
 
-1. **タスクの対象が明確な場合、該当プレフィックスのメモリを優先的に参照**
-   - app本体の作業 → `app-*` メモリを確認
-   - formの作業 → `form-*` メモリを確認
+### 3.2 会員機能
 
-2. **不明な場合はプレフィックスなしのメモリから確認**
-   - `project_overview.md` で全体像を把握
-   - `suggested_commands.md` でよく使うコマンドを確認
+| 機能 | 説明 | URL |
+|------|------|-----|
+| 会員登録 | 新規登録（外部フォーム経由） | 外部: `form.japan-private-reit.com` |
+| ログイン | メール + パスワードで認証 | `/session` |
+| ログアウト | セッション終了 | `/session` (DELETE) |
+| パスワード再設定 | メールでリセットリンク送信 | `/members/reminder` |
+| 退会 | 会員の退会処理 | `/members/:id/resign` |
 
-3. **関連するメモリは複数参照する**
-   - 1つのメモリだけでなく、関連情報も確認する
-   - 例: データベース変更時は `app-database-schema.md` と `app-setup-guide.md` の両方を参照
+### 3.3 管理者機能
 
-## メモリ管理のベストプラクティス
+| 機能 | 説明 | URL |
+|------|------|-----|
+| 会員一覧 | 登録済み会員の一覧表示・検索 | `/members/managelist` |
+| 会員承認 | 新規登録の承認 + メール送信 | `/members/:id/managemail` |
+| 会員却下 | 新規登録の却下 + メール送信 | `/members/:id/managemail` |
+| 会員編集 | 会員情報の編集 | `/members/:id/manageedit` |
+| 会員削除 | 会員の削除 | `/members/:id/managedelete` |
+| 一斉メール | 全会員へメール送信 | `/members/managemailall` |
+| ログ閲覧 | アクセスログの確認 | `/log/loglist` |
 
-### 重複を避ける
-- 同じ情報を複数のメモリに書かない
-- 既存メモリを更新するか、新規作成が必要か判断する
+---
 
-### 定期的な見直し
-- 古い情報は更新または削除する
-- プロジェクトの変更に合わせてメモリも更新する
+## 4. 会員登録フロー
 
-### 明確な責務分担
-- 1つのメモリファイルは1つのトピックに集中する
-- 複数のトピックがある場合は分割する
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. ユーザーが外部フォームにアクセス                              │
+│     URL: https://form.japan-private-reit.com/                   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  2. フォーム入力 + reCAPTCHA v2 チェック                         │
+│     - 名前、会社名、部署名                                        │
+│     - メールアドレス、電話番号                                    │
+│     - 属性（機関投資家/金融機関/...）                             │
+│     - 私募REITへの参加状況                                        │
+│     - 興味のある私募リート（複数選択）                            │
+│     - 利用規約への同意                                            │
+└───────────────────────────┬─────────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  3. Google Forms に送信                                          │
+│     → スプレッドシートに保存                                      │
+└───────────────────────────┬─────────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  4. Google Apps Script (GAS) が自動実行                          │
+│     ① reCAPTCHA トークンをサーバー側で検証                       │
+│     ② 検証成功 → Rails API に POST                               │
+│     ③ Slack に通知                                               │
+└───────────────────────────┬─────────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  5. Rails で会員データを保存                                     │
+│     - members テーブルに登録                                      │
+│     - member_status_on = 0 (未承認)                              │
+└───────────────────────────┬─────────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  6. 管理者が会員一覧で確認                                        │
+│     URL: /members/managelist                                     │
+└───────────────────────────┬─────────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  7. 承認 or 却下                                                 │
+│     → 承認メール or 却下メールを送信                              │
+│     → member_status_on を更新                                    │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-## コーディング規約
+---
 
-プロジェクト全体のコーディング規約は `code_style_and_conventions.md` メモリを参照してください。
+## 5. システム構成
 
-## タスク完了時のチェックリスト
+### 5.1 技術スタック
 
-タスク完了時に実行すべき項目は `task_completion_checklist.md` メモリを参照してください。
+| 項目 | 内容 |
+|------|------|
+| フレームワーク | Ruby on Rails 4.1.4 |
+| Ruby バージョン | 2.3.8 |
+| データベース | MySQL 5.7 |
+| 本番環境 | AWS EC2 |
+| 認証 | bcrypt（パスワードハッシュ化） |
+| ボット対策 | reCAPTCHA v2 |
+| メール送信 | NoticeMailer |
+
+### 5.2 主要ファイル構成
+
+```
+private-reit/
+├── app/
+│   ├── controllers/
+│   │   ├── application_controller.rb  # 基底クラス
+│   │   ├── top_controller.rb          # トップページ
+│   │   ├── home_controller.rb         # 一般ページ
+│   │   ├── reit_controller.rb         # REIT詳細ページ
+│   │   ├── members_controller.rb      # 会員管理
+│   │   ├── sessions_controller.rb     # ログイン/ログアウト
+│   │   ├── interview_controller.rb    # インタビュー記事
+│   │   └── log_controller.rb          # ログ閲覧
+│   ├── models/
+│   │   ├── member.rb                  # 会員
+│   │   ├── brand.rb                   # REIT（ブランド）
+│   │   └── log.rb                     # アクセスログ
+│   ├── views/
+│   │   ├── top/                       # トップページ
+│   │   ├── home/                      # 一般ページ
+│   │   ├── reit/                      # REIT詳細（70以上）
+│   │   ├── members/                   # 会員関連
+│   │   └── interview/                 # インタビュー記事
+│   └── mailers/
+│       └── notice_mailer.rb           # メール送信
+├── config/
+│   ├── routes.rb                      # ルーティング
+│   └── database.yml                   # DB設定
+└── db/
+    ├── schema.rb                      # DBスキーマ
+    └── seeds.rb                       # 初期データ
+```
+
+### 5.3 外部サービス連携
+
+```
+┌──────────────────────┐
+│  外部フォーム         │  form.japan-private-reit.com
+│  (HTML + JS)         │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Google Forms        │  回答を収集・保存
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Google Apps Script  │  reCAPTCHA検証 → Rails API → Slack通知
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Rails (EC2)         │  会員登録・管理
+│  japan-private-reit  │
+│  .com                │
+└──────────────────────┘
+```
+
+---
+
+## 6. データベース構成
+
+### 6.1 主要テーブル
+
+| テーブル | 説明 |
+|----------|------|
+| `members` | 会員情報（名前、会社、メール、パスワード等） |
+| `brands` | 私募REIT情報（70以上のブランド） |
+| `member_interesting_reits` | 会員 ↔ REIT の中間テーブル（興味のあるREIT） |
+| `interesting_contents` | 期待するコンテンツのマスタ（4種類） |
+| `member_interesting_contents` | 会員 ↔ コンテンツ の中間テーブル |
+| `logs` | アクセスログ |
+| `inquiries` | お問い合わせ（現在無効） |
+
+### 6.2 会員ステータス
+
+| フィールド | 値 | 意味 |
+|-----------|-----|------|
+| `member_status_on` | 0 | 未承認 |
+| `member_status_on` | 1 | 承認済み |
+| `member_status_off` | 1 | 却下 |
+| `admin` | 1 | 管理者 |
+
+---
+
+## 7. 本番環境情報
+
+| 項目 | 値 |
+|------|-----|
+| URL | https://japan-private-reit.com |
+| サーバー | AWS EC2 |
+| ホスト | ec2-52-198-187-10.ap-northeast-1.compute.amazonaws.com |
+| SSH ユーザー | ec2-user |
+| SSH ポート | 22 |
+| アプリケーションパス | /var/www/JapanPrivateReit/ |
+| ログファイル | /var/www/JapanPrivateReit/log/production.log |
+| DB名 | JapanPrivateReit_production |
+
+---
+
+## 8. 既知の問題と対応履歴
+
+### 2025-11-26: CSRF検証エラー修正
+
+**問題**: GASからの会員登録リクエストがCSRFトークンエラーで失敗
+
+**原因**: GASからのPOSTリクエストにCSRFトークンが含まれていなかった
+
+**対応**: `MembersController` に以下を追加
+```ruby
+skip_before_filter :verify_authenticity_token, :only => ['create']
+```
+
+**影響**: 2025年10月以降、12件以上の正規登録が失敗していた
+
+---
+
+## 9. 関連ドキュメント
+
+- [会員登録データフロー](../.serena/memory/app-member-registration-data-flow-brands-interesting-contents-checkbox-post-data-many-to-many-relations.md)
+- [GAS連携詳細](../.serena/memory/app-google-apps-script-automation-recaptcha-validation-rails-api-integration-slack-notification.md)
+- [reCAPTCHA実装](../.serena/memory/form-recaptcha-google-forms-integration-external-registration-form-migration.md)
+- [CSRF修正履歴](../.serena/memory/app-csrf-skip-fix-for-gas-registration-2025-11-26.md)
